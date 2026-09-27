@@ -1,17 +1,51 @@
 {
   "name": "agent-observability-exporter",
-  "description": "Standardized telemetry exporters for AI agent logs and metrics to Prometheus, Grafana, and OpenTelemetry backends",
+  "description": "Prometheus and OTLP/HTTP telemetry exporters for AI agent metrics and logs — zero runtime dependencies",
   "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
-  "scripts": {
-    "test": "bun test",
-    "build": "tsc"
+  "keywords": [
+    "ai-agents",
+    "observability",
+    "prometheus",
+    "opentelemetry",
+    "otlp",
+    "metrics",
+    "telemetry",
+    "monitoring",
+    "grafana",
+    "logging"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
-  "dependencies": {
-    "commander": "^11.1.0"
+  "bin": {
+    "agent-obs": "./dist/main.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "prepare": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "bun test",
+    "cli": "node dist/main.js",
+    "demo": "node dist/main.js demo"
   },
   "devDependencies": {
-    "bun-types": "^1.0.0",
-    "typescript": "^5.3.0"
+    "@types/node": "^22.5.0",
+    "bun-types": "^1.1.0",
+    "typescript": "^5.5.0"
   }
 }

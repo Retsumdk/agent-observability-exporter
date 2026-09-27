@@ -1,51 +1,37 @@
-#!/usr/bin/env bun
 /**
- * agent-observability-exporter - Standardized telemetry exporters for AI agent logs and metrics to Prometheus, Grafana, and OpenTelemetry backends
- * Built by Retsumdk
+ * agent-observability-exporter — public API.
+ *
+ * Typical wiring:
+ *   const registry = new MetricsRegistry();
+ *   const logger = new AgentLogger();
+ *   const server = createMetricsServer(() => registry.snapshot()); // Prometheus
+ *   const exporter = new TelemetryExporter(() => registry.snapshot(), {
+ *     endpoint: "http://collector:4318",
+ *   });                                                            // OTLP push
  */
 
-import { Command } from "commander";
-import { existsSync, readFileSync } from "fs";
-import { join } from "path";
+export { MetricsRegistry, DEFAULT_BUCKETS, validateMetricName, serializeLabels } from "./metrics.js";
+export { renderPrometheus, PROMETHEUS_CONTENT_TYPE, escapeLabelValue, escapeHelp } from "./prometheus.js";
+export { toOtlpMetrics, toOtlpLogs, severityNumber } from "./otlp.js";
+export { TelemetryExporter } from "./exporter.js";
+export { AgentLogger, formatJsonLine } from "./logger.js";
+export { createMetricsServer, metricsHandler, PROMETHEUS_PATH, HEALTHZ_PATH } from "./server.js";
+export { ExporterError, configError, validationError, networkError, timeoutError } from "./errors.js";
+export { simulateAgentWork } from "./workload.js";
 
-interface Config {
-  apiKey?: string;
-  baseUrl: string;
-  timeout: number;
-  retries: number;
-}
-
-const DEFAULTS: Config = {
-  baseUrl: "https://api.example.com",
-  timeout: 30000,
-  retries: 3,
-};
-
-function loadConfig(): Config {
-  const cfgPath = join(process.cwd(), "config.json");
-  if (existsSync(cfgPath)) {
-    try {
-      return { ...DEFAULTS, ...JSON.parse(readFileSync(cfgPath, "utf-8")) };
-    } catch { /* ignore */ }
-  }
-  return { ...DEFAULTS };
-}
-
-async function main(cfg: Config) {
-  console.log(`[${name}] Connected to ${cfg.baseUrl}`);
-  console.log(`[${name}] Timeout: ${cfg.timeout}ms | Retries: ${cfg.retries}`);
-  // TODO: implement your logic here
-  console.log(`[${name}] Done.`);
-}
-
-const program = new Command();
-program.name("agent-observability-exporter").description("Standardized telemetry exporters for AI agent logs and metrics to Prometheus, Grafana, and OpenTelemetry backends").version("1.0.0")
-  .option("-c, --config <path>", "Config file path", "config.json")
-  .option("-v, --verbose", "Verbose mode")
-  .action(async (opts) => {
-    const cfg = loadConfig();
-    if (opts.verbose) console.log("Verbose mode on");
-    try { await main(cfg); }
-    catch (e) { console.error(`Error: ${e}`); process.exit(1); }
-  });
-program.parse(process.argv);
+export type {
+  AttributeValue,
+  ExportResult,
+  ExporterConfig,
+  HistogramSample,
+  LabelSet,
+  LogLevel,
+  LogRecord,
+  MetricFamily,
+  MetricKind,
+  RegisterOptions,
+  RegistrySnapshot,
+  Sample,
+  WorkloadHandle,
+  WorkloadOptions,
+} from "./types.js";
